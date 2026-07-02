@@ -5,7 +5,8 @@ pipeline {
         NETLIFY_AUTH_TOKEN = credentials('Netlify_Token')
     }
     stages {
-       stage('Build') {
+        parallel{
+        stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
@@ -34,6 +35,7 @@ pipeline {
                 npm test
                 '''
             }
+        }
         }
     }    
 }
