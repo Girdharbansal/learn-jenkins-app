@@ -5,37 +5,39 @@ pipeline {
         NETLIFY_AUTH_TOKEN = credentials('Netlify_Token')
     }
     stages {
-        parallel{
-        stage('Build') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
+        stage('Parallel Exec'){
+            parallel{
+                stage('Build') {
+                    agent {
+                        docker {
+                            image 'node:18-alpine'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            ls -la
+                            npm ci
+                            npm run build
+                            ls -la
+                            '''
+                    }
+                }
+                stage('Test'){
+                    agent {
+                        docker {
+                            image 'node:18-alpine'
+                            reuseNode true
+                        }
+                    }
+                    steps{
+                        sh '''
+                        test -f build/index.html
+                        npm test
+                        '''
+                    }
                 }
             }
-            steps {
-                sh '''
-                    ls -la
-                    npm ci
-                    npm run build
-                    ls -la
-                    '''
-            }
-        }
-        stage('Test'){
-              agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps{
-                sh '''
-                test -f build/index.html
-                npm test
-                '''
-            }
-        }
         }
     }    
 }
